@@ -40,7 +40,7 @@ Hyprland window rules can match `class:^(eve-settings-manager)$`.
 
 ## Credits
 This is a port of **EVE Settings Manager** by **Nick Ning**, released under the
-MIT License. The features, workflow and UI text follow the original 2.0.6
+MIT License (see `LICENSE`). The features, workflow and UI text follow the original 2.0.6
 release, and the app icon (`assets/eve-settings-manager.png`) comes from it.
 Thanks to Nick for the original app.
 
