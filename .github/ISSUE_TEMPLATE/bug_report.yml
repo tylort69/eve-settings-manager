@@ -1,0 +1,56 @@
+name: Bug report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please **don't paste character names, IDs or full home paths** — replace them with placeholders.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: "2.0.6"
+    validations:
+      required: true
+  - type: input
+    id: distro
+    attributes:
+      label: Distro and desktop
+      placeholder: "Arch Linux, Hyprland 0.57 (Wayland)"
+    validations:
+      required: true
+  - type: dropdown
+    id: launcher
+    attributes:
+      label: How do you run EVE?
+      options:
+        - Steam (Proton)
+        - Lutris / umu
+        - Heroic
+        - Bottles
+        - Plain Wine
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme source
+      options:
+        - Matugen
+        - Faction theme
+        - Custom theme
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal output
+      description: Run `eve-settings-manager` from a terminal and paste anything it prints.
+      render: text

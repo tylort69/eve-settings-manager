@@ -24,15 +24,25 @@ fn setup_fonts(ctx: &egui::Context) {
     let mut fonts = FontDefinitions::default();
     let mut medium = fonts.families[&FontFamily::Proportional].clone();
     if let Some(b) = fc_font(80) {
-        fonts.font_data.insert("sys-regular".into(), Arc::new(FontData::from_owned(b)));
-        fonts.families.get_mut(&FontFamily::Proportional).unwrap().insert(0, "sys-regular".into());
+        fonts
+            .font_data
+            .insert("sys-regular".into(), Arc::new(FontData::from_owned(b)));
+        fonts
+            .families
+            .get_mut(&FontFamily::Proportional)
+            .unwrap()
+            .insert(0, "sys-regular".into());
         medium.insert(0, "sys-regular".into());
     }
     if let Some(b) = fc_font(100) {
-        fonts.font_data.insert("sys-medium".into(), Arc::new(FontData::from_owned(b)));
+        fonts
+            .font_data
+            .insert("sys-medium".into(), Arc::new(FontData::from_owned(b)));
         medium.insert(0, "sys-medium".into());
     }
-    fonts.families.insert(FontFamily::Name("medium".into()), medium);
+    fonts
+        .families
+        .insert(FontFamily::Name("medium".into()), medium);
     ctx.set_fonts(fonts);
     egui_material_icons::initialize(ctx);
 }

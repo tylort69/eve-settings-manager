@@ -41,9 +41,9 @@ impl Client {
     pub fn status(&self, esi: Esi) {
         let (tx, ctx) = (self.tx.clone(), self.ctx.clone());
         std::thread::spawn(move || {
-            let ok = esi.status_url().is_some_and(|u| {
-                agent().get(u).call().is_ok_and(|r| r.status() == 200)
-            });
+            let ok = esi
+                .status_url()
+                .is_some_and(|u| agent().get(u).call().is_ok_and(|r| r.status() == 200));
             let _ = tx.send(Reply::Status(esi, ok));
             ctx.request_repaint();
         });
@@ -57,8 +57,10 @@ impl Client {
         let (tx, ctx) = (self.tx.clone(), self.ctx.clone());
         std::thread::spawn(move || {
             let nums: Vec<u64> = ids.iter().filter_map(|i| i.parse().ok()).collect();
-            let res: Result<Vec<NameEntry>, ureq::Error> =
-                agent().post(url).send_json(&nums).and_then(|mut r| r.body_mut().read_json());
+            let res: Result<Vec<NameEntry>, ureq::Error> = agent()
+                .post(url)
+                .send_json(&nums)
+                .and_then(|mut r| r.body_mut().read_json());
             if let Ok(list) = res {
                 let map = list
                     .into_iter()

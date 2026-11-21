@@ -8,11 +8,15 @@ use std::path::PathBuf;
 pub const APP_ID: &str = "eve-settings-manager";
 
 pub fn config_dir() -> PathBuf {
-    dirs::config_dir().unwrap_or_else(|| PathBuf::from(".")).join(APP_ID)
+    dirs::config_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(APP_ID)
 }
 
 pub fn data_dir() -> PathBuf {
-    dirs::data_dir().unwrap_or_else(|| PathBuf::from(".")).join(APP_ID)
+    dirs::data_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(APP_ID)
 }
 
 /// Where the matugen template writes its output.

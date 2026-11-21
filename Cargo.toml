@@ -4,6 +4,12 @@ version = "2.0.6"
 edition = "2024"
 description = "EVE Online local settings manager (native Linux port, Material You)"
 license = "MIT"
+rust-version = "1.97"
+authors = ["tylort69", "Nick Ning (original EVE Settings Manager)"]
+repository = "https://github.com/tylort69/eve-settings-manager"
+readme = "README.md"
+keywords = ["eve-online", "settings", "material-you", "matugen", "egui"]
+categories = ["games", "gui"]
 
 [dependencies]
 eframe = { version = "0.37", default-features = false, features = ["wgpu", "wayland", "x11", "default_fonts"] }

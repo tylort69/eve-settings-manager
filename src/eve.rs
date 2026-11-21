@@ -22,9 +22,16 @@ pub const SERVERS: &[(&str, &str)] = &[
 ];
 
 const LANGS: &[(&str, &str)] = &[
-    ("en", "English"), ("de", "German"), ("fr", "French"), ("ru", "Russian"),
-    ("ja", "Japanese"), ("ko", "Korean"), ("zh", "Chinese"), ("es", "Spanish"),
-    ("it", "Italian"), ("pt", "Portuguese"),
+    ("en", "English"),
+    ("de", "German"),
+    ("fr", "French"),
+    ("ru", "Russian"),
+    ("ja", "Japanese"),
+    ("ko", "Korean"),
+    ("zh", "Chinese"),
+    ("es", "Spanish"),
+    ("it", "Italian"),
+    ("pt", "Portuguese"),
 ];
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -42,7 +49,10 @@ impl Esi {
             Esi::Serenity
         } else if t.contains("infinity") {
             Esi::Infinity
-        } else if ["singulari", "duality", "thunderdome", "buckshot", "tornado"].iter().any(|k| t.contains(k)) {
+        } else if ["singulari", "duality", "thunderdome", "buckshot", "tornado"]
+            .iter()
+            .any(|k| t.contains(k))
+        {
             Esi::Other
         } else {
             Esi::Tq
@@ -52,17 +62,27 @@ impl Esi {
     pub fn status_url(self) -> Option<&'static str> {
         match self {
             Esi::Tq => Some("https://esi.evetech.net/latest/status/?datasource=tranquility"),
-            Esi::Serenity => Some("https://ali-esi.evepc.163.com/latest/status/?datasource=serenity"),
-            Esi::Infinity => Some("https://ali-esi.evepc.163.com/latest/status/?datasource=infinity"),
+            Esi::Serenity => {
+                Some("https://ali-esi.evepc.163.com/latest/status/?datasource=serenity")
+            }
+            Esi::Infinity => {
+                Some("https://ali-esi.evepc.163.com/latest/status/?datasource=infinity")
+            }
             Esi::Other => None,
         }
     }
 
     pub fn names_url(self) -> Option<&'static str> {
         match self {
-            Esi::Tq => Some("https://esi.evetech.net/latest/universe/names/?datasource=tranquility"),
-            Esi::Serenity => Some("https://ali-esi.evepc.163.com/latest/universe/names/?datasource=serenity"),
-            Esi::Infinity => Some("https://ali-esi.evepc.163.com/latest/universe/names/?datasource=infinity"),
+            Esi::Tq => {
+                Some("https://esi.evetech.net/latest/universe/names/?datasource=tranquility")
+            }
+            Esi::Serenity => {
+                Some("https://ali-esi.evepc.163.com/latest/universe/names/?datasource=serenity")
+            }
+            Esi::Infinity => {
+                Some("https://ali-esi.evepc.163.com/latest/universe/names/?datasource=infinity")
+            }
             Esi::Other => None,
         }
     }
@@ -139,7 +159,9 @@ fn steam_libraries(home: &Path) -> Vec<PathBuf> {
 
 /// All `CCP/EVE` folders found on this machine, most recently used first.
 pub fn find_roots() -> Vec<PathBuf> {
-    let Some(home) = dirs::home_dir() else { return vec![] };
+    let Some(home) = dirs::home_dir() else {
+        return vec![];
+    };
     let mut found: Vec<PathBuf> = Vec::new();
     let mut push = |p: PathBuf| {
         if p.is_dir() {
@@ -164,7 +186,9 @@ pub fn find_roots() -> Vec<PathBuf> {
     // Prefer folders that actually contain server data, newest first.
     let score = |p: &PathBuf| {
         let servers = detect_servers(p).len();
-        let mtime = fs::metadata(p).and_then(|m| m.modified()).unwrap_or(SystemTime::UNIX_EPOCH);
+        let mtime = fs::metadata(p)
+            .and_then(|m| m.modified())
+            .unwrap_or(SystemTime::UNIX_EPOCH);
         (servers > 0, mtime)
     };
     found.sort_by_key(|p| std::cmp::Reverse(score(p)));
@@ -173,12 +197,18 @@ pub fn find_roots() -> Vec<PathBuf> {
 
 /// If the user picked a server folder directly, split it into (root, server).
 pub fn resolve_picked(p: &Path) -> (PathBuf, Option<PathBuf>) {
-    let name = p.file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
+    let name = p
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_default();
     if is_server_dir(&name) {
         (p.parent().unwrap_or(p).to_path_buf(), Some(p.to_path_buf()))
     } else if name.starts_with("settings_") {
         let server = p.parent().unwrap_or(p);
-        (server.parent().unwrap_or(server).to_path_buf(), Some(server.to_path_buf()))
+        (
+            server.parent().unwrap_or(server).to_path_buf(),
+            Some(server.to_path_buf()),
+        )
     } else {
         (p.to_path_buf(), None)
     }
@@ -193,7 +223,9 @@ pub struct Server {
 }
 
 pub fn detect_servers(root: &Path) -> Vec<Server> {
-    let Ok(rd) = fs::read_dir(root) else { return vec![] };
+    let Ok(rd) = fs::read_dir(root) else {
+        return vec![];
+    };
     let mut v: Vec<Server> = rd
         .flatten()
         .filter(|e| e.file_type().is_ok_and(|t| t.is_dir()))
@@ -238,13 +270,18 @@ pub fn validate_name(name: &str) -> Result<()> {
 }
 
 pub fn list_profiles(server: &Path) -> Vec<Profile> {
-    let Ok(rd) = fs::read_dir(server) else { return vec![] };
+    let Ok(rd) = fs::read_dir(server) else {
+        return vec![];
+    };
     let mut v: Vec<Profile> = rd
         .flatten()
         .filter(|e| e.file_type().is_ok_and(|t| t.is_dir()))
         .filter_map(|e| {
             let n = e.file_name().to_string_lossy().to_string();
-            n.strip_prefix("settings_").map(|s| Profile { name: s.to_string(), path: e.path() })
+            n.strip_prefix("settings_").map(|s| Profile {
+                name: s.to_string(),
+                path: e.path(),
+            })
         })
         .collect();
     v.sort_by(|a, b| a.name.cmp(&b.name));
@@ -317,7 +354,9 @@ pub struct SettingFile {
 pub fn list_settings(profile: &Path) -> Vec<SettingFile> {
     static CHAR: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^core_char_(\d+)\.dat$").unwrap());
     static USER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^core_user_(\d+)\.dat$").unwrap());
-    let Ok(rd) = fs::read_dir(profile) else { return vec![] };
+    let Ok(rd) = fs::read_dir(profile) else {
+        return vec![];
+    };
     let mut v: Vec<SettingFile> = rd
         .flatten()
         .filter(|e| e.file_type().is_ok_and(|t| t.is_file()))
@@ -325,16 +364,24 @@ pub fn list_settings(profile: &Path) -> Vec<SettingFile> {
             let name = e.file_name().to_string_lossy().to_string();
             let (kind, id) = if let Some(c) = CHAR.captures(&name) {
                 (FileKind::Char, c[1].to_string())
-            } else if let Some(c) = USER.captures(&name) {
-                (FileKind::User, c[1].to_string())
             } else {
-                return None;
+                let c = USER.captures(&name)?;
+                (FileKind::User, c[1].to_string())
             };
-            let modified = e.metadata().and_then(|m| m.modified()).unwrap_or(SystemTime::UNIX_EPOCH);
-            Some(SettingFile { kind, id, filename: name, path: e.path(), modified })
+            let modified = e
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(SystemTime::UNIX_EPOCH);
+            Some(SettingFile {
+                kind,
+                id,
+                filename: name,
+                path: e.path(),
+                modified,
+            })
         })
         .collect();
-    v.sort_by(|a, b| b.modified.cmp(&a.modified));
+    v.sort_by_key(|f| std::cmp::Reverse(f.modified));
     v
 }
 
@@ -383,7 +430,10 @@ fn meta_path() -> PathBuf {
 }
 
 fn read_meta() -> HashMap<String, FileMeta> {
-    fs::read_to_string(meta_path()).ok().and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default()
+    fs::read_to_string(meta_path())
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_default()
 }
 
 fn write_meta(m: &HashMap<String, FileMeta>) -> Result<()> {
@@ -393,7 +443,16 @@ fn write_meta(m: &HashMap<String, FileMeta>) -> Result<()> {
 }
 
 pub fn sanitize(name: &str) -> String {
-    name.trim().chars().map(|c| if matches!(c, '/' | '\\' | '\0' | ':') { '_' } else { c }).collect()
+    name.trim()
+        .chars()
+        .map(|c| {
+            if matches!(c, '/' | '\\' | '\0' | ':') {
+                '_'
+            } else {
+                c
+            }
+        })
+        .collect()
 }
 
 pub fn folder_backup_exists(name: &str) -> bool {
@@ -426,25 +485,47 @@ pub fn backup_file(file: &SettingFile, display: &str) -> Result<()> {
     let stem = format!("{}__{stamp}", file.filename.trim_end_matches(".dat"));
     fs::copy(&file.path, dir.join(format!("{stem}.dat")))?;
     let mut m = read_meta();
-    m.insert(stem, FileMeta { target: file.filename.clone(), display: display.to_string() });
+    m.insert(
+        stem,
+        FileMeta {
+            target: file.filename.clone(),
+            display: display.to_string(),
+        },
+    );
     write_meta(&m)
 }
 
 pub fn list_backups() -> Vec<Backup> {
     let dir = backups_dir();
-    let Ok(rd) = fs::read_dir(&dir) else { return vec![] };
+    let Ok(rd) = fs::read_dir(&dir) else {
+        return vec![];
+    };
     let meta = read_meta();
     let mut v: Vec<Backup> = rd
         .flatten()
         .filter_map(|e| {
             let md = e.metadata().ok()?;
-            let created = md.created().or_else(|_| md.modified()).unwrap_or(SystemTime::UNIX_EPOCH);
+            let created = md
+                .created()
+                .or_else(|_| md.modified())
+                .unwrap_or(SystemTime::UNIX_EPOCH);
             let name = e.file_name().to_string_lossy().to_string();
             if md.is_dir() {
                 let count = fs::read_dir(e.path())
-                    .map(|r| r.flatten().filter(|f| f.file_name().to_string_lossy().ends_with(".dat")).count())
+                    .map(|r| {
+                        r.flatten()
+                            .filter(|f| f.file_name().to_string_lossy().ends_with(".dat"))
+                            .count()
+                    })
                     .unwrap_or(0);
-                Some(Backup { kind: BackupKind::Folder, display: name.clone(), name, path: e.path(), created, file_count: count })
+                Some(Backup {
+                    kind: BackupKind::Folder,
+                    display: name.clone(),
+                    name,
+                    path: e.path(),
+                    created,
+                    file_count: count,
+                })
             } else if let Some(stem) = name.strip_suffix(".dat") {
                 let fm = meta.get(stem).cloned().unwrap_or_else(|| FileMeta {
                     // Legacy/unknown: restore to "<stem>.dat" minus any timestamp suffix.
@@ -453,7 +534,11 @@ pub fn list_backups() -> Vec<Backup> {
                 });
                 Some(Backup {
                     kind: BackupKind::File { target: fm.target },
-                    display: if fm.display.is_empty() { stem.to_string() } else { fm.display },
+                    display: if fm.display.is_empty() {
+                        stem.to_string()
+                    } else {
+                        fm.display
+                    },
                     name: stem.to_string(),
                     path: e.path(),
                     created,
@@ -464,7 +549,7 @@ pub fn list_backups() -> Vec<Backup> {
             }
         })
         .collect();
-    v.sort_by(|a, b| b.created.cmp(&a.created));
+    v.sort_by_key(|b| std::cmp::Reverse(b.created));
     v
 }
 
@@ -529,7 +614,10 @@ mod tests {
         assert_eq!(servers[0].display, "Tranquility");
         assert_eq!(servers[0].esi, Esi::Tq);
         assert_eq!(resolve_picked(&srv).0, base);
-        assert_eq!(display_name("c_eve_sharedcache_serenity_zh"), "Serenity (Chinese)");
+        assert_eq!(
+            display_name("c_eve_sharedcache_serenity_zh"),
+            "Serenity (Chinese)"
+        );
 
         // settings files (generic core_char__.dat ignored)
         let def = srv.join("settings_Default");
@@ -550,26 +638,45 @@ mod tests {
         assert_eq!(list_profiles(&srv).len(), 2);
 
         // sync char 111 -> 222
-        copy_settings(&def.join("core_char_111.dat"), &[def.join("core_char_222.dat")]).unwrap();
-        assert_eq!(fs::read(def.join("core_char_222.dat")).unwrap(), b"char-111");
+        copy_settings(
+            &def.join("core_char_111.dat"),
+            &[def.join("core_char_222.dat")],
+        )
+        .unwrap();
+        assert_eq!(
+            fs::read(def.join("core_char_222.dat")).unwrap(),
+            b"char-111"
+        );
 
         // folder backup + restore
         let n = backup_profile(&def, "snap").unwrap();
         assert_eq!(n, 4);
         assert!(folder_backup_exists("snap"));
         fs::write(def.join("core_user_9.dat"), b"changed").unwrap();
-        let b = list_backups().into_iter().find(|b| b.name == "snap").unwrap();
+        let b = list_backups()
+            .into_iter()
+            .find(|b| b.name == "snap")
+            .unwrap();
         restore_backup(&b, &def).unwrap();
         assert_eq!(fs::read(def.join("core_user_9.dat")).unwrap(), b"user-9");
 
         // single-file backup restores to its original filename
-        let f = list_settings(&def).into_iter().find(|f| f.id == "111").unwrap();
+        let f = list_settings(&def)
+            .into_iter()
+            .find(|f| f.id == "111")
+            .unwrap();
         backup_file(&f, "Pilot A").unwrap();
         fs::write(def.join("core_char_111.dat"), b"broken").unwrap();
-        let fb = list_backups().into_iter().find(|b| b.display == "Pilot A").unwrap();
+        let fb = list_backups()
+            .into_iter()
+            .find(|b| b.display == "Pilot A")
+            .unwrap();
         assert!(matches!(&fb.kind, BackupKind::File { target } if target == "core_char_111.dat"));
         restore_backup(&fb, &def).unwrap();
-        assert_eq!(fs::read(def.join("core_char_111.dat")).unwrap(), b"char-111");
+        assert_eq!(
+            fs::read(def.join("core_char_111.dat")).unwrap(),
+            b"char-111"
+        );
         delete_backup(&fb).unwrap();
         delete_backup(&b).unwrap();
         assert!(list_backups().is_empty());
