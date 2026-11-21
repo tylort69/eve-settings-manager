@@ -1,0 +1,27 @@
+[package]
+name = "eve-settings-manager"
+version = "2.0.6"
+edition = "2024"
+description = "EVE Online local settings manager (native Linux port, Material You)"
+license = "MIT"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = ["wgpu", "wayland", "x11", "default_fonts"] }
+egui = "0.37"
+egui_material_icons = "0.9"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"
+glob = "0.3"
+regex = "1"
+rfd = "0.15"
+ureq = { version = "3", features = ["json"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+anyhow = "1"
+material-colors = "0.5"
+open = "5"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=EVE Settings Manager
+Comment=Manage EVE Online local settings profiles, sync and backups
+Exec=eve-settings-manager
+Icon=eve-settings-manager
+Terminal=false
+Categories=Game;
+StartupWMClass=eve-settings-manager
