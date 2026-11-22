@@ -27,7 +27,11 @@ struct NameEntry {
 fn agent() -> ureq::Agent {
     ureq::Agent::config_builder()
         .timeout_global(Some(Duration::from_secs(10)))
-        .user_agent("eve-settings-manager (linux)")
+        .user_agent(format!(
+            "eve-settings-manager/{} ({})",
+            env!("CARGO_PKG_VERSION"),
+            std::env::consts::OS
+        ))
         .build()
         .into()
 }

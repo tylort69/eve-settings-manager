@@ -4,6 +4,24 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [2.1.0] - 2026-11-21
+
+### Added
+- **Windows build** (`eve-settings-manager-2.1.0-x86_64-windows.zip`): a single
+  portable `.exe` for Windows 10/11 with the same features as the Linux build.
+  It finds `%LOCALAPPDATA%\CCP\EVE` automatically and keeps its own config
+  and backups in `%APPDATA%\eve-settings-manager`. It uses Segoe UI and the
+  native folder picker, and the `.exe` has the app icon and version info
+  built in.
+- App icon on the window and taskbar on both platforms.
+- `scripts/package-windows.sh` cross-compiles the Windows release from Linux.
+- CI now also lints and tests on Windows.
+
+### Changed
+- Profile names can't contain `< > : " | ? *` or end with a dot, because
+  Windows doesn't allow them in folder names.
+- The ESI user agent now reports the app version and OS.
+
 ## [2.0.6] - 2026-11-21
 
 First native Linux release. It's a full rewrite in Rust of the Windows/Electron
@@ -38,4 +56,5 @@ EVE Settings Manager 2.0.6 by Nick Ning.
 ### Not carried over
 - UI translations (English only for now).
 
+[2.1.0]: https://github.com/tylort69/eve-settings-manager/releases/tag/v2.1.0
 [2.0.6]: https://github.com/tylort69/eve-settings-manager/releases/tag/v2.0.6

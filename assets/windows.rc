@@ -1,0 +1,28 @@
+#include <winver.h>
+1 ICON "eve-settings-manager.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     2,1,0,0
+PRODUCTVERSION  2,1,0,0
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName",      "tylort69"
+      VALUE "FileDescription",  "EVE Settings Manager"
+      VALUE "FileVersion",      "2.1.0"
+      VALUE "InternalName",     "eve-settings-manager"
+      VALUE "LegalCopyright",   "MIT License. Nick Ning (original), tylort69 (port)"
+      VALUE "OriginalFilename", "eve-settings-manager.exe"
+      VALUE "ProductName",      "EVE Settings Manager"
+      VALUE "ProductVersion",   "2.1.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END

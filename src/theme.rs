@@ -521,8 +521,10 @@ pub fn generate(seed: Color32, style: Style) -> (Scheme, Scheme) {
 /// this app already exists.
 pub fn matugen_available(colors_path: &std::path::Path) -> bool {
     colors_path.exists()
-        || std::env::var_os("PATH")
-            .is_some_and(|paths| std::env::split_paths(&paths).any(|d| d.join("matugen").is_file()))
+        || std::env::var_os("PATH").is_some_and(|paths| {
+            std::env::split_paths(&paths)
+                .any(|d| d.join("matugen").is_file() || d.join("matugen.exe").is_file())
+        })
 }
 
 impl ThemeSource {

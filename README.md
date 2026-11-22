@@ -2,14 +2,14 @@
 
 <img src="assets/eve-settings-manager.png" width="96" alt="EVE Settings Manager icon">
 
-# EVE Settings Manager for Linux
+# EVE Settings Manager
 
-**Manage, sync and back up your EVE Online client settings: windows, overviews, chat and UI layouts. Built natively for Linux.**
+**Manage, sync and back up your EVE Online client settings: windows, overviews, chat and UI layouts. Native on Linux and Windows.**
 
 [![CI](https://github.com/tylort69/eve-settings-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/tylort69/eve-settings-manager/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/tylort69/eve-settings-manager)](https://github.com/tylort69/eve-settings-manager/releases/latest)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Platform](https://img.shields.io/badge/platform-Linux%20(Wayland%20%7C%20X11)-informational)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-informational)
 ![Rust](https://img.shields.io/badge/rust-1.97%2B-orange)
 
 <img src="docs/screenshots/main-caldari.png" alt="EVE Settings Manager main window" width="900">
@@ -17,16 +17,18 @@
 </div>
 
 EVE stores every character's and every account's UI layout in small `.dat`
-files hidden inside your Wine/Proton prefix. This app finds them for you and
-lets you:
+files hidden in `%LOCALAPPDATA%\CCP\EVE` on Windows, or inside your
+Wine/Proton prefix on Linux. This app finds them for you and lets you:
 - copy one character's layout onto your alts in two clicks,
 - keep separate setting **profiles** (PvP, mining, trading…),
 - take **backups** before a patch or a big UI change.
 
-It's a native Rust rewrite of Nick Ning's Windows app
-[EVE Settings Manager](#credits). It doesn't use Electron or a webview, and has
-a Material You interface that can follow your wallpaper through
-[matugen](https://github.com/InioX/matugen).
+It's a native Rust rewrite of Nick Ning's
+[EVE Settings Manager](#credits). It doesn't use Electron or a webview. It's a
+single small program with a Material You interface, EVE faction themes, and
+on Linux it can follow your wallpaper through
+[matugen](https://github.com/InioX/matugen). The Linux and Windows builds have
+the same features.
 
 ---
 
@@ -34,7 +36,7 @@ a Material You interface that can follow your wallpaper through
 
 - [Features](#features)
 - [Screenshots](#screenshots)
-- [Installation](#installation)
+- [Installation](#installation) · [Windows](#windows)
 - [Requirements](#requirements)
 - [Quick start](#quick-start)
 - [How it works](#how-it-works)
@@ -100,6 +102,28 @@ a Material You interface that can follow your wallpaper through
 > All screenshots use made-up demo pilots and accounts.
 
 ## Installation
+
+### Windows
+
+1. Download `eve-settings-manager-<version>-x86_64-windows.zip` from the
+   [latest release](https://github.com/tylort69/eve-settings-manager/releases/latest).
+2. Extract it anywhere (for example `Documents\EVE Settings Manager`) and run
+   `eve-settings-manager.exe`. There's nothing to install. It's a single
+   portable program.
+
+Windows 10 or 11 (64-bit) is required. Windows SmartScreen may warn that the
+app is from an unknown publisher, because the build isn't code-signed. Click
+**More info → Run anyway**. You can check the download against the
+`.sha256` file first, in PowerShell:
+
+```powershell
+Get-FileHash .\eve-settings-manager-*-x86_64-windows.zip -Algorithm SHA256
+```
+
+The app finds `%LOCALAPPDATA%\CCP\EVE` automatically. Its own preferences
+and backups are kept in `%APPDATA%\eve-settings-manager`. Close EVE and the
+launcher before changing settings, since the client overwrites the files when
+it exits.
 
 ### Option A: prebuilt release (Arch and other rolling distros)
 
@@ -320,6 +344,9 @@ Other files:
 | `~/.config/eve-settings-manager/colors.json` | matugen output (generated) |
 | `~/.local/share/eve-settings-manager/backups/` | Profile backups (folders) and file backups (`.dat` + `meta.json`) |
 
+On Windows, `config.json`, `colors.json` and `backups\` are all in
+`%APPDATA%\eve-settings-manager`.
+
 ## Where EVE keeps settings on Linux
 
 The app checks these locations automatically (`*` matches any prefix or user
@@ -446,6 +473,11 @@ entry. Then run matugen once and confirm that
 
 ## Uninstalling
 
+**Windows:** delete the extracted folder. To also remove your notes,
+preferences and backups, delete `%APPDATA%\eve-settings-manager`.
+
+**Linux:**
+
 ```bash
 ./install.sh --uninstall
 ```
@@ -464,13 +496,14 @@ cargo build --release        # binary at target/release/eve-settings-manager
 cargo test                   # file-operation and theme tests (uses a temp folder)
 cargo clippy --all-targets   # lints (CI runs with -D warnings)
 scripts/package.sh           # release tarball in dist/
+scripts/package-windows.sh   # Windows .zip in dist/ (needs mingw-w64-gcc + rustup target x86_64-pc-windows-gnu)
 ```
 
 Project layout:
 
 | File | Purpose |
 |---|---|
-| `src/main.rs` | Window setup and fonts |
+| `src/main.rs` | Window setup and fonts (fontconfig on Linux, Segoe UI on Windows) |
 | `src/app.rs` | UI: drawer and rail, profiles, table, dialogs |
 | `src/m3.rs` | Material 3 components (buttons, chips, segmented buttons, rail…) |
 | `src/theme.rs` | Colour schemes: matugen loading, faction and custom generation, live reload |

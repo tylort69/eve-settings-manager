@@ -1159,7 +1159,7 @@ impl App {
             ui.painter().text(r.center(), Align2::CENTER_CENTER, ICON_FOLDER_OFF.codepoint, icon_font(ICON_FOLDER_OFF, 48.0), s.on_secondary_container);
             ui.add_space(16.0);
             ui.label(RichText::new("EVE settings folder not found").font(font(24.0)).color(s.on_surface));
-            ui.label(RichText::new("Make sure EVE Online has been launched once (Steam/Proton, Lutris, Bottles or Wine), or pick the CCP/EVE folder manually.").color(s.on_surface_variant));
+            ui.label(RichText::new(if cfg!(windows) { "Make sure EVE Online has been launched once, or pick the CCP\\EVE folder manually." } else { "Make sure EVE Online has been launched once (Steam/Proton, Lutris, Bottles or Wine), or pick the CCP/EVE folder manually." }).color(s.on_surface_variant));
             ui.add_space(16.0);
             if m3::button(ui, &s, Kind::Filled, Some(ICON_FOLDER_OPEN), "Select settings folder").clicked() {
                 self.pick_folder();
@@ -1511,7 +1511,7 @@ impl App {
                     }
                 }
                 ui.add_space(8.0);
-                ui.label(RichText::new("Found automatically in Proton / Wine prefixes. You can pick the top-level CCP/EVE folder or a server subfolder.").color(s.on_surface_variant));
+                ui.label(RichText::new(if cfg!(windows) { "Found automatically in %LOCALAPPDATA%\\CCP\\EVE. You can pick the top-level CCP\\EVE folder or a server subfolder." } else { "Found automatically in Proton / Wine prefixes. You can pick the top-level CCP/EVE folder or a server subfolder." }).color(s.on_surface_variant));
                 ui.add_space(12.0);
                 m3::label_small(ui, &s, "Local data");
                 ui.label(RichText::new("Backups, notes and preferences are stored locally. Only character IDs are sent to EVE's public ESI to look up names and server status.").color(s.on_surface_variant));
@@ -1638,7 +1638,12 @@ impl App {
             )
         } else if self.matugen_installed {
             (
-                "matugen found, but the app template isn't set up yet — run install.sh".to_string(),
+                if cfg!(windows) {
+                    "matugen found, but the app template isn't set up yet — see the README"
+                } else {
+                    "matugen found, but the app template isn't set up yet — run install.sh"
+                }
+                .to_string(),
                 false,
             )
         } else {

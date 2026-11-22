@@ -1,4 +1,5 @@
-//! EVE settings folder discovery and file operations (Linux: Proton / Wine prefixes).
+//! EVE settings folder discovery and file operations
+//! (Windows: %LOCALAPPDATA%\\CCP\\EVE; Linux: Proton / Wine prefixes).
 
 use anyhow::{Context, Result, bail};
 use regex::Regex;
@@ -116,6 +117,7 @@ fn is_server_dir(name: &str) -> bool {
 // ---------------------------------------------------------------------------
 
 /// Glob patterns (relative to $HOME) where Linux EVE installs keep `CCP/EVE`.
+#[cfg(not(windows))]
 const PATTERNS: &[&str] = &[
     // Steam / Proton (EVE app id 8500)
     ".steam/steam/steamapps/compatdata/8500/pfx/drive_c/users/*/AppData/Local/CCP/EVE",
@@ -134,6 +136,11 @@ const PATTERNS: &[&str] = &[
 ];
 
 /// Shown in the Info dialog.
+#[cfg(windows)]
+pub const PATTERN_HINTS: &[&str] = &["%LOCALAPPDATA%\\CCP\\EVE"];
+
+/// Shown in the Info dialog.
+#[cfg(not(windows))]
 pub const PATTERN_HINTS: &[&str] = &[
     "~/.steam/steam/steamapps/compatdata/8500/pfx/…/AppData/Local/CCP/EVE",
     "~/Games/<prefix>/drive_c/users/<user>/AppData/Local/CCP/EVE",
@@ -142,6 +149,7 @@ pub const PATTERN_HINTS: &[&str] = &[
 ];
 
 /// Extra Steam library folders listed in libraryfolders.vdf.
+#[cfg(not(windows))]
 fn steam_libraries(home: &Path) -> Vec<PathBuf> {
     static PATH: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#""path"\s+"([^"]+)""#).unwrap());
     let mut out = Vec::new();
@@ -157,30 +165,46 @@ fn steam_libraries(home: &Path) -> Vec<PathBuf> {
     out
 }
 
+/// Resolve symlinks, without the `\\?\` verbatim prefix Windows would add.
+fn canonical(p: PathBuf) -> PathBuf {
+    if cfg!(windows) {
+        p
+    } else {
+        fs::canonicalize(&p).unwrap_or(p)
+    }
+}
+
 /// All `CCP/EVE` folders found on this machine, most recently used first.
 pub fn find_roots() -> Vec<PathBuf> {
-    let Some(home) = dirs::home_dir() else {
-        return vec![];
-    };
     let mut found: Vec<PathBuf> = Vec::new();
     let mut push = |p: PathBuf| {
         if p.is_dir() {
-            let c = fs::canonicalize(&p).unwrap_or(p);
+            let c = canonical(p);
             if !found.contains(&c) {
                 found.push(c);
             }
         }
     };
-    for pat in PATTERNS {
-        let full = home.join(pat);
-        if let Ok(paths) = glob::glob(&full.to_string_lossy()) {
-            paths.flatten().for_each(&mut push);
-        }
+    // Native Windows install: %LOCALAPPDATA%\CCP\EVE.
+    #[cfg(windows)]
+    if let Some(local) = dirs::data_local_dir() {
+        push(local.join("CCP").join("EVE"));
     }
-    for lib in steam_libraries(&home) {
-        let pat = lib.join("steamapps/compatdata/8500/pfx/drive_c/users/*/AppData/Local/CCP/EVE");
-        if let Ok(paths) = glob::glob(&pat.to_string_lossy()) {
-            paths.flatten().for_each(&mut push);
+    // Linux: Proton / Wine prefixes under $HOME and extra Steam libraries.
+    #[cfg(not(windows))]
+    if let Some(home) = dirs::home_dir() {
+        for pat in PATTERNS {
+            let full = home.join(pat);
+            if let Ok(paths) = glob::glob(&full.to_string_lossy()) {
+                paths.flatten().for_each(&mut push);
+            }
+        }
+        for lib in steam_libraries(&home) {
+            let pat =
+                lib.join("steamapps/compatdata/8500/pfx/drive_c/users/*/AppData/Local/CCP/EVE");
+            if let Ok(paths) = glob::glob(&pat.to_string_lossy()) {
+                paths.flatten().for_each(&mut push);
+            }
         }
     }
     // Prefer folders that actually contain server data, newest first.
@@ -263,7 +287,11 @@ pub fn validate_name(name: &str) -> Result<()> {
     if n.is_empty() {
         bail!("Name cannot be empty");
     }
-    if n.contains(['/', '\\', '\0']) || n == "." || n == ".." {
+    if n.contains(['/', '\\', '\0', '<', '>', ':', '"', '|', '?', '*'])
+        || n == "."
+        || n == ".."
+        || n.ends_with('.')
+    {
         bail!("Name contains invalid characters");
     }
     Ok(())
