@@ -43,7 +43,10 @@ else
   SRC="target/release/$APP"
 fi
 install -Dm755 "$SRC" "$BIN/$APP"
-install -Dm644 assets/$APP.desktop "$APPS/$APP.desktop"
+# Use the full path: launchers started by the compositor often don't have ~/.local/bin on PATH.
+mkdir -p "$APPS"
+sed "s|^Exec=.*|Exec=\"$BIN/$APP\"|" assets/$APP.desktop > "$APPS/$APP.desktop"
+chmod 644 "$APPS/$APP.desktop"
 install -Dm644 assets/$APP.png "$ICONS/$APP.png"
 command -v update-desktop-database >/dev/null && update-desktop-database "$APPS" 2>/dev/null || true
 command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q "${ICONS%/128x128/apps}" 2>/dev/null || true

@@ -22,6 +22,11 @@ All notable changes to this project are documented here. The format follows
   Windows doesn't allow them in folder names.
 - The ESI user agent now reports the app version and OS.
 
+### Fixed
+- The Linux menu entry now launches the app from desktop launchers whose PATH
+  doesn't include `~/.local/bin` (for example quickshell or rofi started by
+  Hyprland). `install.sh` writes the full program path into the entry.
+
 ## [2.0.6] - 2026-11-21
 
 First native Linux release. It's a full rewrite in Rust of the Windows/Electron
